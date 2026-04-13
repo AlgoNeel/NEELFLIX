@@ -26,6 +26,7 @@
             font-family: 'Inter', sans-serif;
             margin: 0;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         .serif { font-family: 'Source Serif 4', serif; }
@@ -98,6 +99,21 @@
             z-index: 2000;
             justify-content: center;
             align-items: center;
+            padding: 20px;
+        }
+
+        /* Mobile specific adjustments for the player */
+        @media (max-width: 768px) {
+            #playerModal {
+                padding: 10px;
+                align-items: flex-start;
+                padding-top: 60px;
+            }
+            .aspect-video {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+            }
         }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -114,7 +130,7 @@
             <h1 class="text-black text-2xl font-black tracking-tighter uppercase cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">NEELFLIX</h1>
         </div>
         <div class="flex items-center space-x-6">
-            <input type="text" id="searchInput" placeholder="Search universe..." class="bg-gray-50 text-sm focus:outline-none border border-gray-200 rounded-full px-5 py-2 w-40 md:w-64 transition-all focus:ring-1 ring-gray-200 placeholder:text-gray-400">
+            <input type="text" id="searchInput" placeholder="Search..." class="bg-gray-50 text-sm focus:outline-none border border-gray-200 rounded-full px-5 py-2 w-32 md:w-64 transition-all focus:ring-1 ring-gray-200 placeholder:text-gray-400">
             <div class="w-2 h-2 rounded-full bg-red-600"></div>
         </div>
     </nav>
@@ -122,11 +138,11 @@
     <!-- Hero Section -->
     <header class="pt-40 pb-10 px-[6%] max-w-7xl mx-auto">
         <div class="mb-4 inline-block bg-green-50 text-green-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-green-100">
-            Free for all to use
+            Free Archive
         </div>
         <h2 class="serif text-5xl md:text-7xl font-extrabold tracking-tight mb-4 leading-none text-black">The Archive.</h2>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl font-medium tracking-tight uppercase">
-            Curated collections from Marvel, DC, and Cinema History
+            Curated collections from Marvel, DC, Cinema History, and Horror
         </p>
     </header>
 
@@ -136,6 +152,7 @@
             <button onclick="filterCategory('all', this)" class="category-btn active">All Works</button>
             <button onclick="filterCategory('Marvel', this)" class="category-btn">Marvel (MCU)</button>
             <button onclick="filterCategory('DC', this)" class="category-btn">DC Universe</button>
+            <button onclick="filterCategory('Horror', this)" class="category-btn">Horror</button>
             <button onclick="filterCategory('Action', this)" class="category-btn">Action</button>
             <button onclick="filterCategory('Sci-Fi', this)" class="category-btn">Sci-Fi</button>
         </div>
@@ -157,24 +174,24 @@
             </div>
             <div class="flex space-x-8 text-[11px] font-bold uppercase tracking-widest text-gray-500">
                 <button onclick="openLegal('disclaimer')" class="hover:text-black transition">Disclaimer</button>
-                <button onclick="openLegal('terms')" class="hover:text-black transition">Terms of Use</button>
-                <button onclick="openLegal('privacy')" class="hover:text-black transition">Privacy Policy</button>
+                <button onclick="openLegal('terms')" class="hover:text-black transition">Terms</button>
+                <button onclick="openLegal('privacy')" class="hover:text-black transition">Privacy</button>
             </div>
         </div>
     </footer>
 
     <!-- Player Modal -->
     <div id="playerModal" onclick="if(event.target.id === 'playerModal') closePlayer()">
-        <div class="w-full max-w-5xl px-4 relative">
+        <div class="w-full max-w-5xl relative">
             <button onclick="closePlayer()" class="absolute -top-12 right-0 text-black hover:text-red-600 text-4xl font-light transition">&times;</button>
-            <div id="iframeContainer" class="aspect-video bg-gray-100 rounded-lg overflow-hidden shadow-2xl border border-gray-200"></div>
+            <div id="iframeContainer" class="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-200"></div>
             <div class="mt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="flex-1">
-                    <h3 id="modalTitle" class="serif text-4xl font-bold tracking-tight text-black"></h3>
+                    <h3 id="modalTitle" class="serif text-3xl md:text-4xl font-bold tracking-tight text-black"></h3>
                     <p id="modalCategory" class="text-[10px] text-gray-400 mt-1 font-bold uppercase tracking-widest"></p>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button class="bg-black text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition">Watch Later</button>
+                    <button class="bg-black text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition">Save</button>
                 </div>
             </div>
         </div>
@@ -191,7 +208,7 @@
 
     <script>
         const movies = [
-            // --- MARVEL CINEMATIC UNIVERSE (Release Order) ---
+            // --- MARVEL CINEMATIC UNIVERSE ---
             { id: "1726", title: "Iron Man", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/7WsyChQZ3ZpI0UNBhP7pSjS19fs.jpg" },
             { id: "1724", title: "The Incredible Hulk", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/gKzY9LALHfk7M6m36S3z973tBLs.jpg" },
             { id: "10138", title: "Iron Man 2", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/6WBeUv4mUvgyHc9774o7CAzY97m.jpg" },
@@ -247,6 +264,18 @@
             { id: "565770", title: "Blue Beetle", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/BEETLE9S7Z9SjS.jpg" },
             { id: "572802", title: "Aquaman and the Lost Kingdom", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/AQUA9S7Z9SjS.jpg" },
 
+            // --- HORROR ARCHIVE ---
+            { id: "135335", title: "The Conjuring", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/w9V79S7Z9SjS.jpg" },
+            { id: "259695", title: "The Conjuring 2", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/7GtgI68V9S7Z9SjS.jpg" },
+            { id: "346364", title: "It", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/9S7Z9SjS4Sit.jpg" },
+            { id: "44217", title: "The Conjuring: The Devil Made Me Do It", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/74xTEgtmR3id_Conj3.jpg" },
+            { id: "351460", title: "A Quiet Place", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/n9S7Z9SjS4Sqp.jpg" },
+            { id: "419430", title: "Get Out", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/9S7Z9SjS4Sgo.jpg" },
+            { id: "420634", title: "Hereditary", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/9S7Z9SjS4Sh.jpg" },
+            { id: "507089", title: "Midsommar", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/9S7Z9SjS4Sm.jpg" },
+            { id: "530385", title: "M3GAN", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/7WsyChQZ3ZpI0UNBhP7pSjS19fs.jpg" },
+            { id: "713704", title: "Evil Dead Rise", category: "Horror", thumb: "https://image.tmdb.org/t/p/w500/m9S7Z9SjS4Sedr.jpg" },
+
             // --- CINEMA HIGHLIGHTS ---
             { id: "157336", title: "Interstellar", category: "Sci-Fi", thumb: "https://image.tmdb.org/t/p/w500/gEU2QniE6E07Qv8vNGQpQoQpP9P.jpg" },
             { id: "27205", title: "Inception", category: "Sci-Fi", thumb: "https://image.tmdb.org/t/p/w500/9gk7Fn9S7Z9SjS.jpg" }
@@ -256,23 +285,54 @@
         const grid = document.getElementById('movie-grid');
 
         function renderGrid(filterText = "") {
+            // Track counts separately for each category for numbering
+            let marvelCount = 0;
+            let dcCount = 0;
+            let horrorCount = 0;
+            let actionCount = 0;
+            let scifiCount = 0;
+            
             const filteredMovies = movies.filter(m => {
                 const matchesSearch = m.title.toLowerCase().includes(filterText.toLowerCase());
                 const matchesCategory = currentCategory === 'all' || m.category === currentCategory;
                 return matchesSearch && matchesCategory;
             });
             
-            grid.innerHTML = filteredMovies.map((m) => `
+            grid.innerHTML = filteredMovies.map((m) => {
+                let numberLabel = "";
+                
+                // Assign sequence numbers based on their position in the full list
+                if (m.category === 'Marvel') {
+                    marvelCount++;
+                    numberLabel = `#${marvelCount}`;
+                } else if (m.category === 'DC') {
+                    dcCount++;
+                    numberLabel = `#${dcCount}`;
+                } else if (m.category === 'Horror') {
+                    horrorCount++;
+                    numberLabel = `#${horrorCount}`;
+                } else if (m.category === 'Action') {
+                    actionCount++;
+                    numberLabel = `#${actionCount}`;
+                } else if (m.category === 'Sci-Fi') {
+                    scifiCount++;
+                    numberLabel = `#${scifiCount}`;
+                }
+
+                return `
                 <div class="movie-card group" onclick="openPlayer('${m.id}', '${m.title}', '${m.category}')">
                     <div class="poster-container aspect-[2/3] mb-4">
-                        <img src="${m.thumb}" class="w-full h-full object-cover" alt="${m.title}" onerror="this.src='https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=500'">
+                        <div class="absolute top-2 left-2 z-10 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-white/10">
+                            ${numberLabel}
+                        </div>
+                        <img src="${m.thumb}" class="w-full h-full object-cover" alt="${m.title}" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500'">
                     </div>
                     <div class="px-1">
                         <h4 class="text-xs font-bold text-black uppercase tracking-tight truncate leading-tight">${m.title}</h4>
                         <p class="text-[10px] text-gray-400 mt-1 font-medium">${m.category}</p>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function filterCategory(cat, btn) {
@@ -284,10 +344,19 @@
 
         function openPlayer(id, title, cat) {
             const modal = document.getElementById('playerModal');
-            document.getElementById('iframeContainer').innerHTML = 
-                `<iframe src="https://www.vidking.net/embed/movie/${id}?color=000000&autoPlay=true" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.vidking.net/embed/movie/${id}?color=000000`;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.setAttribute('allowfullscreen', 'true');
+            iframe.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');
+            
+            document.getElementById('iframeContainer').innerHTML = '';
+            document.getElementById('iframeContainer').appendChild(iframe);
+            
             document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalCategory').innerText = cat + " Universe Archive";
+            document.getElementById('modalCategory').innerText = cat + " Archive";
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -301,15 +370,15 @@
         const legalData = {
             disclaimer: {
                 title: "Disclaimer",
-                content: "NEELFLIX is an educational archive project. We do not host any copyrighted media files on our own servers. This interface acts as a curated index for publicly available web streams. We are not affiliated with Marvel Studios, Disney, DC Comics, or Warner Bros. Discovery."
+                content: "NEELFLIX is an educational project. We do not host files. Content is indexed from public web streams."
             },
             terms: {
-                title: "Terms of Use",
-                content: "This archive is provided free of charge for archival and research purposes. Users are expected to comply with local copyright laws. Commercial redistribution or mass scraping of this curated list is strictly prohibited. Access may be revoked at any time."
+                title: "Terms",
+                content: "Archive is provided free for personal research use only."
             },
             privacy: {
-                title: "Privacy Policy",
-                content: "NEELFLIX respects user anonymity. No registration is required. We do not use persistent tracking cookies, fingerprinting, or share any browsing data with third parties. Your history is stored only in your local browser session."
+                title: "Privacy",
+                content: "No personal data is collected. History is local only."
             }
         };
 
