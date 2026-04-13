@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>NEELFLIX | The Archive</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;800&family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #e50914;
+            --bg: #ffffff;
+            --text-main: #0a0a0a;
+            --text-muted: #666666;
+            --surface: #f9f9fb;
+            --border: #eeeeee;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .serif { font-family: 'Source Serif 4', serif; }
+
+        #navbar {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .movie-card {
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .poster-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            background: var(--surface);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            transition: all 0.4s ease;
+        }
+
+        .movie-card:hover .poster-container {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            border-color: #ddd;
+        }
+
+        .movie-card img {
+            transition: transform 0.6s ease;
+        }
+
+        .movie-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .category-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            white-space: nowrap;
+        }
+        
+        .category-btn.active {
+            color: black;
+        }
+        
+        .category-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #playerModal, #legalModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255,255,255,0.98);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 px-[6%] py-5 flex items-center justify-between transition-all duration-500 border-b border-gray-100">
+        <div class="flex items-center space-x-12">
+            <h1 class="text-black text-2xl font-black tracking-tighter uppercase cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">NEELFLIX</h1>
+        </div>
+        <div class="flex items-center space-x-6">
+            <input type="text" id="searchInput" placeholder="Search universe..." class="bg-gray-50 text-sm focus:outline-none border border-gray-200 rounded-full px-5 py-2 w-40 md:w-64 transition-all focus:ring-1 ring-gray-200 placeholder:text-gray-400">
+            <div class="w-2 h-2 rounded-full bg-red-600"></div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-40 pb-10 px-[6%] max-w-7xl mx-auto">
+        <div class="mb-4 inline-block bg-green-50 text-green-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-green-100">
+            Free for all to use
+        </div>
+        <h2 class="serif text-5xl md:text-7xl font-extrabold tracking-tight mb-4 leading-none text-black">The Archive.</h2>
+        <p class="text-gray-400 text-sm md:text-base max-w-2xl font-medium tracking-tight uppercase">
+            Curated collections from Marvel, DC, and Cinema History
+        </p>
+    </header>
+
+    <!-- Category Menu -->
+    <div class="px-[6%] max-w-7xl mx-auto mb-16 overflow-x-auto no-scrollbar">
+        <div class="flex items-center space-x-10 text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400 border-b border-gray-100 pb-4 min-w-max">
+            <button onclick="filterCategory('all', this)" class="category-btn active">All Works</button>
+            <button onclick="filterCategory('Marvel', this)" class="category-btn">Marvel (MCU)</button>
+            <button onclick="filterCategory('DC', this)" class="category-btn">DC Universe</button>
+            <button onclick="filterCategory('Action', this)" class="category-btn">Action</button>
+            <button onclick="filterCategory('Sci-Fi', this)" class="category-btn">Sci-Fi</button>
+        </div>
+    </div>
+
+    <!-- Gallery Grid -->
+    <main class="px-[6%] pb-40 max-w-7xl mx-auto">
+        <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
+            <!-- Movie cards injected here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="px-[6%] py-20 border-t border-gray-100 bg-gray-50/50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <h3 class="text-black text-xl font-black tracking-tighter uppercase mb-2">NEELFLIX</h3>
+                <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest">© 2024 NEELFLIX Archive. All rights reserved.</p>
+            </div>
+            <div class="flex space-x-8 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                <button onclick="openLegal('disclaimer')" class="hover:text-black transition">Disclaimer</button>
+                <button onclick="openLegal('terms')" class="hover:text-black transition">Terms of Use</button>
+                <button onclick="openLegal('privacy')" class="hover:text-black transition">Privacy Policy</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Player Modal -->
+    <div id="playerModal" onclick="if(event.target.id === 'playerModal') closePlayer()">
+        <div class="w-full max-w-5xl px-4 relative">
+            <button onclick="closePlayer()" class="absolute -top-12 right-0 text-black hover:text-red-600 text-4xl font-light transition">&times;</button>
+            <div id="iframeContainer" class="aspect-video bg-gray-100 rounded-lg overflow-hidden shadow-2xl border border-gray-200"></div>
+            <div class="mt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex-1">
+                    <h3 id="modalTitle" class="serif text-4xl font-bold tracking-tight text-black"></h3>
+                    <p id="modalCategory" class="text-[10px] text-gray-400 mt-1 font-bold uppercase tracking-widest"></p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-black text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition">Watch Later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Modal -->
+    <div id="legalModal" onclick="if(event.target.id === 'legalModal') closeLegal()">
+        <div class="w-full max-w-2xl px-6 relative bg-white p-12 rounded-lg border border-gray-100 shadow-xl overflow-y-auto max-h-[80vh]">
+            <button onclick="closeLegal()" class="absolute top-6 right-6 text-black hover:text-red-600 text-2xl transition">&times;</button>
+            <h2 id="legalTitle" class="serif text-3xl font-bold mb-6"></h2>
+            <div id="legalContent" class="text-gray-600 text-sm leading-relaxed space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        const movies = [
+            // --- MARVEL CINEMATIC UNIVERSE (Release Order) ---
+            { id: "1726", title: "Iron Man", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/7WsyChQZ3ZpI0UNBhP7pSjS19fs.jpg" },
+            { id: "1724", title: "The Incredible Hulk", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/gKzY9LALHfk7M6m36S3z973tBLs.jpg" },
+            { id: "10138", title: "Iron Man 2", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/6WBeUv4mUvgyHc9774o7CAzY97m.jpg" },
+            { id: "10195", title: "Thor", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/prRk94puv776T7pP99v9v9v.jpg" },
+            { id: "1771", title: "Captain America: The First Avenger", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/vSN19SjS4S7Z9SjS.jpg" },
+            { id: "24428", title: "The Avengers", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/RYMX2mBBuild95v76o6p969919.jpg" },
+            { id: "68721", title: "Iron Man 3", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/qhPtRUW9s7TMz4COpP71S7L3jkW.jpg" },
+            { id: "76338", title: "Thor: The Dark World", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/wp6D9pCl0p08p9S7n8FvM6p73Tf.jpg" },
+            { id: "100402", title: "Captain America: The Winter Soldier", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/tVcm66ST76S8v0Fm706wN96S.jpg" },
+            { id: "118340", title: "Guardians of the Galaxy", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/r7DuyYnolstfsWp5vI9t木pP9P.jpg" },
+            { id: "99861", title: "Avengers: Age of Ultron", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/4ssDuvEDrS9SStBt1uVPrA6vBTF.jpg" },
+            { id: "102899", title: "Ant-Man", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/76798-Ant-Man.jpg" },
+            { id: "271110", title: "Captain America: Civil War", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/rAGS6uogS9SStBt1uVPrA6vBTF.jpg" },
+            { id: "284052", title: "Doctor Strange", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/u99861-Doctor-Strange.jpg" },
+            { id: "283995", title: "Guardians of the Galaxy Vol. 2", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/y4MBhCy9S7Z9SjS.jpg" },
+            { id: "315635", title: "Spider-Man: Homecoming", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/c24X68V9S7Z9SjS.jpg" },
+            { id: "284053", title: "Thor: Ragnarok", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/rzRwTcFvM6p73Tf.jpg" },
+            { id: "284054", title: "Black Panther", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/uxzzQH68V9S7Z9SjS.jpg" },
+            { id: "299536", title: "Avengers: Infinity War", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/7WsyChQZ3ZpI0UNBhP7pSjS19fs.jpg" },
+            { id: "363088", title: "Ant-Man and the Wasp", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/rv9S7Z9SjS.jpg" },
+            { id: "299537", title: "Captain Marvel", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/AtsgUu68V9S7Z9SjS.jpg" },
+            { id: "299534", title: "Avengers: Endgame", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/or06FN3DOKO0XJ06V9S7Z9SjS.jpg" },
+            { id: "429617", title: "Spider-Man: Far From Home", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/429617.jpg" },
+            { id: "497698", title: "Black Widow", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/q7R9S7Z9SjS.jpg" },
+            { id: "566525", title: "Shang-Chi", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/1BIoJ68V9S7Z9SjS.jpg" },
+            { id: "524434", title: "Eternals", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/bcY9S7Z9SjS.jpg" },
+            { id: "634649", title: "Spider-Man: No Way Home", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/1g0mD1I9S7Z9SjS.jpg" },
+            { id: "453395", title: "Doctor Strange: Multiverse", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/9GtgI68V9S7Z9SjS.jpg" },
+            { id: "616037", title: "Thor: Love and Thunder", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/p13868V9S7Z9SjS.jpg" },
+            { id: "505642", title: "Black Panther: Wakanda Forever", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/sv1xZ68V9S7Z9SjS.jpg" },
+            { id: "640146", title: "Ant-Man: Quantumania", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/nglH68V9S7Z9SjS.jpg" },
+            { id: "447365", title: "Guardians of the Galaxy Vol. 3", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/r2J068V9S7Z9SjS.jpg" },
+            { id: "609681", title: "The Marvels", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/99861-Marvels.jpg" },
+            { id: "533535", title: "Deadpool & Wolverine", category: "Marvel", thumb: "https://image.tmdb.org/t/p/w500/8cdWjvZQUmOZpIu5GisPvO9uJ6X.jpg" },
+
+            // --- DC UNIVERSE ---
+            { id: "49521", title: "Man of Steel", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/7WsyChQZ3ZpI0UNBhP7pSjS19fs.jpg" },
+            { id: "209112", title: "Batman v Superman", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/cGOPbv9S7Z9SjS.jpg" },
+            { id: "297761", title: "Suicide Squad", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/e06I9S7Z9SjS.jpg" },
+            { id: "297762", title: "Wonder Woman", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/gf9S7Z9SjS.jpg" },
+            { id: "141052", title: "Justice League", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/9S7Z9SjS4.jpg" },
+            { id: "297802", title: "Aquaman", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/550V9S7Z9SjS.jpg" },
+            { id: "287947", title: "Shazam!", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/6S7Z9SjS.jpg" },
+            { id: "475557", title: "Joker", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/udDcl7mUot2aN9-Joker.jpg" },
+            { id: "495764", title: "Birds of Prey", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/h4VBhCy9S7Z9SjS.jpg" },
+            { id: "464052", title: "Wonder Woman 1984", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/8WUVhCy9S7Z9SjS.jpg" },
+            { id: "791373", title: "Zack Snyder's Justice League", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/tnS19SjS4S7Z9SjS.jpg" },
+            { id: "436969", title: "The Suicide Squad", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/kb8V9S7Z9SjS.jpg" },
+            { id: "414906", title: "The Batman", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/74xTEgtmR3id_Batman.jpg" },
+            { id: "436270", title: "Black Adam", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/p9S7Z9SjS4S.jpg" },
+            { id: "594767", title: "Shazam! Fury of the Gods", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/fURY9S7Z9SjS.jpg" },
+            { id: "298618", title: "The Flash", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/FLASH9S7Z9SjS.jpg" },
+            { id: "565770", title: "Blue Beetle", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/BEETLE9S7Z9SjS.jpg" },
+            { id: "572802", title: "Aquaman and the Lost Kingdom", category: "DC", thumb: "https://image.tmdb.org/t/p/w500/AQUA9S7Z9SjS.jpg" },
+
+            // --- CINEMA HIGHLIGHTS ---
+            { id: "157336", title: "Interstellar", category: "Sci-Fi", thumb: "https://image.tmdb.org/t/p/w500/gEU2QniE6E07Qv8vNGQpQoQpP9P.jpg" },
+            { id: "27205", title: "Inception", category: "Sci-Fi", thumb: "https://image.tmdb.org/t/p/w500/9gk7Fn9S7Z9SjS.jpg" }
+        ];
+
+        let currentCategory = 'all';
+        const grid = document.getElementById('movie-grid');
+
+        function renderGrid(filterText = "") {
+            const filteredMovies = movies.filter(m => {
+                const matchesSearch = m.title.toLowerCase().includes(filterText.toLowerCase());
+                const matchesCategory = currentCategory === 'all' || m.category === currentCategory;
+                return matchesSearch && matchesCategory;
+            });
+            
+            grid.innerHTML = filteredMovies.map((m) => `
+                <div class="movie-card group" onclick="openPlayer('${m.id}', '${m.title}', '${m.category}')">
+                    <div class="poster-container aspect-[2/3] mb-4">
+                        <img src="${m.thumb}" class="w-full h-full object-cover" alt="${m.title}" onerror="this.src='https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=500'">
+                    </div>
+                    <div class="px-1">
+                        <h4 class="text-xs font-bold text-black uppercase tracking-tight truncate leading-tight">${m.title}</h4>
+                        <p class="text-[10px] text-gray-400 mt-1 font-medium">${m.category}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderGrid(document.getElementById('searchInput').value);
+        }
+
+        function openPlayer(id, title, cat) {
+            const modal = document.getElementById('playerModal');
+            document.getElementById('iframeContainer').innerHTML = 
+                `<iframe src="https://www.vidking.net/embed/movie/${id}?color=000000&autoPlay=true" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalCategory').innerText = cat + " Universe Archive";
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePlayer() {
+            document.getElementById('playerModal').style.display = 'none';
+            document.getElementById('iframeContainer').innerHTML = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        const legalData = {
+            disclaimer: {
+                title: "Disclaimer",
+                content: "NEELFLIX is an educational archive project. We do not host any copyrighted media files on our own servers. This interface acts as a curated index for publicly available web streams. We are not affiliated with Marvel Studios, Disney, DC Comics, or Warner Bros. Discovery."
+            },
+            terms: {
+                title: "Terms of Use",
+                content: "This archive is provided free of charge for archival and research purposes. Users are expected to comply with local copyright laws. Commercial redistribution or mass scraping of this curated list is strictly prohibited. Access may be revoked at any time."
+            },
+            privacy: {
+                title: "Privacy Policy",
+                content: "NEELFLIX respects user anonymity. No registration is required. We do not use persistent tracking cookies, fingerprinting, or share any browsing data with third parties. Your history is stored only in your local browser session."
+            }
+        };
+
+        function openLegal(type) {
+            const modal = document.getElementById('legalModal');
+            document.getElementById('legalTitle').innerText = legalData[type].title;
+            document.getElementById('legalContent').innerText = legalData[type].content;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLegal() {
+            document.getElementById('legalModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderGrid(e.target.value);
+        });
+
+        renderGrid();
+    </script>
+</body>
+</html>
